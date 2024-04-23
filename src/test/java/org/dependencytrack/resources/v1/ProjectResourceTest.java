@@ -738,7 +738,8 @@ public class ProjectResourceTest extends ResourceTest {
                           },
                           "properties": [],
                           "tags": [],
-                          "active": true
+                          "active": true,
+                          "collectionLogic":"NONE"
                         }
                         """);
 
