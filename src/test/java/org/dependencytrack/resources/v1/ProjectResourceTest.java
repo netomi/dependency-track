@@ -697,6 +697,7 @@ public class ProjectResourceTest extends ResourceTest {
                           ],
                           "active": false,
                           "collectionLogic":"NONE"
+                          "children": []
                         }
                         """);
     }
@@ -774,7 +775,7 @@ public class ProjectResourceTest extends ResourceTest {
                         """);
 
         // Ensure the parent was updated.
-        qm.getPersistenceManager().refresh(project);
+        qm.getPersistenceManager().evictAll();
         assertThat(project.getParent()).isNotNull();
         assertThat(project.getParent().getUuid()).isEqualTo(newParent.getUuid());
     }
@@ -799,7 +800,7 @@ public class ProjectResourceTest extends ResourceTest {
         assertThat(getPlainTextBody(response)).isEqualTo("The UUID of the parent project could not be found.");
 
         // Ensure the parent was not modified.
-        qm.getPersistenceManager().refresh(project);
+        qm.getPersistenceManager().evictAll();
         assertThat(project.getParent()).isNotNull();
         assertThat(project.getParent().getUuid()).isEqualTo(parent.getUuid());
     }
