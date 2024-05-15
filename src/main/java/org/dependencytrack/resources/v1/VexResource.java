@@ -251,7 +251,7 @@ public class VexResource extends AlpineResource {
                     return Response.status(Response.Status.BAD_REQUEST).entity("VEX cannot be uploaded to collection project.").build();
                 }
                 try (InputStream in = bodyPartEntity.getInputStream()) {
-                    final byte[] content = IOUtils.toByteArray(new BOMInputStream((in)));
+                    final byte[] content = IOUtils.toByteArray(BOMInputStream.builder().setInputStream(in).get());
                     BomResource.validate(content);
                     final VexUploadEvent vexUploadEvent = new VexUploadEvent(project.getUuid(), content);
                     Event.dispatch(vexUploadEvent);
