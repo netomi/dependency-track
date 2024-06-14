@@ -28,6 +28,19 @@ import org.dependencytrack.JerseyTestRule;
 import org.dependencytrack.ResourceTest;
 import org.dependencytrack.auth.Permissions;
 import org.dependencytrack.model.*;
+import org.dependencytrack.model.AnalysisResponse;
+import org.dependencytrack.model.AnalysisState;
+import org.dependencytrack.model.Classifier;
+import org.dependencytrack.model.Component;
+import org.dependencytrack.model.ComponentProperty;
+import org.dependencytrack.model.OrganizationalContact;
+import org.dependencytrack.model.OrganizationalEntity;
+import org.dependencytrack.model.Project;
+import org.dependencytrack.model.ProjectMetadata;
+import org.dependencytrack.model.ProjectProperty;
+import org.dependencytrack.model.Severity;
+import org.dependencytrack.model.Tag;
+import org.dependencytrack.model.Vulnerability;
 import org.dependencytrack.parser.cyclonedx.CycloneDxValidator;
 import org.dependencytrack.resources.v1.exception.JsonMappingExceptionMapper;
 import org.dependencytrack.resources.v1.vo.BomSubmitRequest;
@@ -45,6 +58,8 @@ import jakarta.ws.rs.core.Response;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.json;
@@ -755,6 +770,29 @@ public class BomResourceTest extends ResourceTest {
         Assert.assertTrue(UuidUtil.isValidUUID(json.getString("token")));
         Project project = qm.getProject("Acme Example", "1.0");
         Assert.assertNotNull(project);
+    }
+
+    @Test
+    public void uploadBomAutoCreateWithTagsTest() throws Exception {
+        initializeWithPermissions(Permissions.BOM_UPLOAD, Permissions.PROJECT_CREATION_UPLOAD);
+        String bomString = Base64.getEncoder().encodeToString(resourceToByteArray("/unit/bom-1.xml"));
+        List<Tag> tags = Stream.of("tag1", "tag2").map(name -> {
+          Tag tag = new Tag();
+          tag.setName(name);
+          return tag;
+        }).collect(Collectors.toList());
+        BomSubmitRequest request = new BomSubmitRequest(null, "Acme Example", "1.0", tags, true, bomString);
+        Response response = jersey.target(V1_BOM).request()
+                .header(X_API_KEY, apiKey)
+                .put(Entity.entity(request, MediaType.APPLICATION_JSON));
+        Assert.assertEquals(200, response.getStatus(), 0);
+        JsonObject json = parseJsonObject(response);
+        Assert.assertNotNull(json);
+        Assert.assertNotNull(json.getString("token"));
+        Assert.assertTrue(UuidUtil.isValidUUID(json.getString("token")));
+        Project project = qm.getProject("Acme Example", "1.0");
+        Assert.assertNotNull(project);
+        Assert.assertEquals(tags, project.getTags());
     }
 
     @Test
