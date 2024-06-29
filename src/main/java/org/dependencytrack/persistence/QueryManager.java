@@ -1303,6 +1303,10 @@ public class QueryManager extends AlpineQueryManager {
         getProjectQueryManager().bind(project, tags);
     }
 
+    public boolean bind(final Policy policy, final Collection<Tag> tags) {
+        return getPolicyQueryManager().bind(policy, tags);
+    }
+
     /**
      * Commits the Lucene index.
      * @param commitIndex specifies if the search index should be committed (an expensive operation)
@@ -1342,6 +1346,10 @@ public class QueryManager extends AlpineQueryManager {
 
     public List<TagQueryManager.TagListRow> getTags() {
         return getTagQueryManager().getTags();
+    }
+
+    public void deleteTags(final Collection<String> tagNames) {
+        getTagQueryManager().deleteTags(tagNames);
     }
 
     public List<TagQueryManager.TaggedProjectRow> getTaggedProjects(final String tagName) {
