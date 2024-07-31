@@ -1167,4 +1167,10 @@ public class BomResourceTest extends ResourceTest {
         Assert.assertEquals("BOM cannot be uploaded to collection project.", body);
     }
 
+    @Test
+    public void validateCycloneDxBomWithMultipleNamespacesTest() throws Exception {
+        byte[] bom = resourceToByteArray("/unit/bom-issue4008.xml");
+        assertThatNoException().isThrownBy(() -> CycloneDxValidator.getInstance().validate(bom));
+    }
+
 }
